@@ -1,0 +1,41 @@
+name: CWE Data Fetch and Update
+
+on:
+  schedule:
+    - cron: '0 0 * * 0'  # Runs every Sunday at midnight
+  workflow_dispatch:  # Allows manual triggering from GitHub UI
+
+permissions:
+  contents: write  # Grants write permissions for pushing changes
+
+jobs:
+  fetch-and-process-cwe:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests lxml
+
+    - name: Run CWE script
+      run: python script.py
+
+    - name: Configure Git
+      run: |
+        git config --global user.name 'GitHub Actions'
+        git config --global user.email 'github-actions@users.noreply.github.com'
+
+    - name: Commit changes
+      run: |
+        git add cwe.json
+        git commit -m "Update CWE JSON data"
+        git push
