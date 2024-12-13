@@ -42,8 +42,12 @@ def fetch_and_parse_cwe_data():
             'description': weakness.find('./Description', namespaces=xml_namespaces).text,
         })
 
-    # Sort the CWE list by 'name'
-    cwe_entries = sorted(cwe_entries, key=lambda cwe: cwe['name'])
+    # Sort the CWE list by CWE-ID (numerical order)
+    def extract_cwe_id(cwe):
+        # Extract numeric CWE-ID from "CWE-ID: Name"
+        return int(cwe['name'].split('-')[1].split(':')[0])
+
+    cwe_entries = sorted(cwe_entries, key=extract_cwe_id)
 
     # Save the data to a JSON file
     output_json_path = Path(__file__).parent / 'cwe.json'
